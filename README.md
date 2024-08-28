@@ -12,4 +12,4 @@ A person detection WebApp using:
 - Start PostgreSQL and pgAdmin with docker compose file: `docker compose up -d`
 - Change directory to : `cd src`
 - Start WebApp server: `uvicorn main:app`
-- open http://localhost:8080 and try it out!
+- open http://localhost:8000 and try it out!
