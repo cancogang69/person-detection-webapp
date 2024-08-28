@@ -1,16 +1,17 @@
 import cv2
 import os
-from fastapi import FastAPI, UploadFile, Depends, HTTPException, File, Form
-from fastapi.responses import Response, FileResponse
+from fastapi import FastAPI, UploadFile, Depends, HTTPException, File, Form, Request
+from fastapi.responses import FileResponse
 from typing import Annotated
 from dotenv import dotenv_values, find_dotenv
 from sqlalchemy.orm import Session
 import schemas 
 import crud
-from database import Base, engine, SessionLocal, get_db
+from database import Base, engine, get_db
 from detector import FaceDetector
 from backend_utils import generate_image_metadata, convert_from_string, get_image_from_url
 import base64
+from json import JSONDecodeError
 
 
 app = FastAPI()
@@ -26,17 +27,34 @@ if not os.path.exists(config["IMAGE_STORE_URL"]):
   print("Create image store directory successfully")
 
 @app.get("/")
-def home():
+def home_page():
   return FileResponse(f"{views_path}/home.html")
 
-@app.get("/image/{image_id}")
-async def retrieve_image(image_id: int, db: db_dependency):
+@app.get("/find")
+def find_page():
+  return FileResponse(f"{views_path}/find.html")
+
+@app.post("/find")
+async def retrieve_image(db: db_dependency, request: Request):
+  content_type = request.headers.get('Content-Type')
+  if content_type is None:
+    raise HTTPException(status_code=400, detail='No Content-Type provided')
+  if content_type != 'application/json':
+    raise HTTPException(status_code=400, detail='Content-Type not supported')
+  
+  try:
+    form = await request.json()
+  except JSONDecodeError:
+    raise HTTPException(status_code=400, detail='Invalid JSON data')
+  
+  image_id = form["image_id"]
+  
   img_information = crud.get_image_information(db, image_id)
   if img_information is None:
     raise HTTPException(status_code=404, detail="Image not found")
   
   img = get_image_from_url(img_information.store_url)
-  base64_img = base64.b64encode(img).decode("utf-8")
+  base64_img = base64.b64encode(img)
 
   return {"base64_img": base64_img, 
           "person_count": img_information.person_count,

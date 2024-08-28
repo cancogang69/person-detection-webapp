@@ -7,50 +7,75 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+    <style>
+      html, body {
+        height: 100%;
+      }
+      section {
+        height: 80%;
+      }
+    </style>
     <title>Home</title>
   </head>
   <body>
-    <section class="bg-gradient pt-5 pb-6">
-      <div class="container text-center">
-        <div class="row">
-          <div class="col-12 d-flex justify-content-between align-items-center">
-              <div class="heading-brand">Person Detection WebApp</div>
-          </div>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <span class="navbar-brand mb-0 h1">Detective</span>
         </div>
-        <div class="card">
-          <div class="col-md-12 d-flex flex-column flex-md-row justify-content-center">
-            <div class="sidebar">
-              <div class="sidebar-content">
-                <div class="mt-2 col-md-3"></div>
-                <div class="input-group mb-3">
-                  <span class="input-group-text">Confidence (%)</span>
-                  <input type="number"  id="confidence-score" class="form-control"
-                    min="1" max="100" value="50">
-                </div>
-                <form enctype="multipart/form-data" class="dropzone" id="image-dropzone">
-                  <div class="dz-message">
-                    <span>Drop image here or click to upload</span>
-                  </div>
-                  <div class="previews"></div>
-                </form>
-                <div class="mt-2 col-md-3"></div>
-                <button id="image-submit-button" type="button" class="btn btn-primary disabled">
-                  Upload Image
-                </button>
-                <button id="remove-button" type="button" class="btn btn-danger disabled" data-dz-remove>
-                  Remove chosen image
-                </button>
-      
-                <div class="mt-5 col-md-3"></div>
-                
-                <div class="Person-detect-result-area text">
-                  <h3 class="text-success">Results will appear here</h3>
-                  <div id="person-count"></div>
-                  <div id="result-image-container"></div>
-                </div>  
+        <ul class="nav navbar-nav me-auto mb-3 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active pe-auto" aria-current="page" href="/" role="button">
+              Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link pe-auto" aria-current="page" href="/find" role="button">
+              Find Image
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <section class="pt-5 pb-6">
+      <div class="container-fluid h-100 text-center">
+        <div class="card-header">
+          <h2>Person image detector</h2>
+        </div>
+        <div class="card h-100">
+          <div class="row pt-3 h-100 justify-content-center">
+            <div class="col-4 align-self-center">
+              <div class="mt-1 col-md-3"></div>
+              <div class="input-group mb-3">
+                <span class="input-group-text">Confidence (%)</span>
+                <input type="number"  id="confidence-score" class="form-control"
+                  min="1" max="100" value="50">
               </div>
+              <form enctype="multipart/form-data" class="dropzone" id="image-dropzone">
+                <div class="dz-message">
+                  <span>Drop image here or click to upload</span>
+                </div>
+                <div class="previews"></div>
+              </form>
+              <div class="mt-2 col-md-3"></div>
+              <button id="image-submit-button" type="button" class="btn btn-primary disabled">
+                Upload Image
+              </button>
+              <button id="remove-button" type="button" class="btn btn-danger disabled" data-dz-remove>
+                Remove chosen image
+              </button>
+              <div class="mt-1 col-md-3"></div>
             </div>
-            
+
+            <div class="col-6 mt-5">
+              <div class="person-detect-result-area">
+                <h3 class="text-success">Results will appear here</h3>
+                <div id="person-count"></div>
+                <div id="image-id"></div>
+                <div id="result-image-container"></div>
+              </div> 
+            </div>
           </div>
         </div>
       </div>
@@ -93,7 +118,6 @@
         })
 
         this.on("success", function(file, response) {
-          
           let imageDiv = document.getElementById('result-image-container')
           imageDiv.innerHTML = ''
           var image = new Image()
@@ -102,11 +126,17 @@
           image.style.height="auto"
           imageDiv.appendChild(image)
 
-          let countsContainer = document.getElementById('person-count')
+          const countsContainer = document.getElementById('person-count')
           countsContainer.innerHTML = ''
-          let countDiv = document.createElement('div')
+          const countDiv = document.createElement('div')
           countDiv.innerText = `The number of person: ${response.person_count}`
           countsContainer.appendChild(countDiv)
+
+          const imageIdContainer = document.getElementById('image-id')
+          imageIdContainer.innerHTML = ''
+          const idDiv = document.createElement('div')
+          idDiv.innerText = `The id of image: ${response.img_id}`
+          imageIdContainer.appendChild(idDiv)
         })
       }
     }) 

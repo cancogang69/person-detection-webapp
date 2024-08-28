@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
+    <style>
+      html, body {
+        height: 100%;
+      }
+      section {
+        height: 80%;
+      }
+    </style>
+    <title>Find</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <span class="navbar-brand mb-0 h1">Detective</span>
+        </div>
+        <ul class="nav navbar-nav me-auto mb-3 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link pe-auto" aria-current="page" href="/" role="button">
+              Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active pe-auto" aria-current="page" href="/find" role="button">
+              Find Image
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <section class="pt-5 pb-6">
+      <div class="container-fluid h-100 text-center">
+        <div class="card-header">
+          <h2>Find image</h2>
+        </div>
+        <div class="card h-100">
+          <div class="row pt-3 h-100 justify-content-center">
+            <div class="col-4 align-self-center">
+              <form id="find-form" method="POST">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Image Id</span>
+                  <input type="number" id="id-input" name="image_id" class="form-control">
+                </div>
+                <button type="submit" id="id-button" class="btn btn-primary disabled" role="button">
+                  Find
+                </button>
+              </form>
+            </div>
+            <div class="col-6 mt-5"> 
+              <div class="person-detect-result-area">
+                <h3 class="text-success">Results will appear here</h3>
+                <div id="person-count"></div>
+                <div id="result-image-container"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+  <script>
+    const idInput = document.getElementById('id-input') 
+    idInput.addEventListener("input", function(e) {
+      const button = document.getElementById('id-button')
+      button.classList.remove('disabled')
+    })
+
+    const form = document.getElementById("find-form")
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const idValue = document.getElementById('id-input').value
+
+      fetch(event.target.action, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+        body: JSON.stringify({"image_id": idValue})
+      })
+      .then(async (response) => {
+        if(!response.ok) {
+          alert("Image doesn't exist")
+          return
+        }
+
+        const json = await response.json()
+
+        const imageDiv = document.getElementById('result-image-container')
+        imageDiv.innerHTML = ''
+        var image = new Image()
+        image.src = 'data:image/png;base64,' + json.base64_img
+        image.style.width="500px"
+        image.style.height="auto"
+        imageDiv.appendChild(image)
+
+        const countsContainer = document.getElementById('person-count')
+        countsContainer.innerHTML = ''
+        let countDiv = document.createElement('div')
+        countDiv.innerText = `The number of person: ${json.person_count}`
+        countsContainer.appendChild(countDiv)
+      })
+    })
+  </script>
+</html>
