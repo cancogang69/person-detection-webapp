@@ -6,20 +6,19 @@ class FaceDetector():
   def __init__(self, 
                model_path= "ultralytics/yolov5",
                model_type= "yolov5s",
-               threshold= 0.5,
                bbox_thickness= 2,
                bbox_color= (255, 0, 0)):
     self.model = torch.hub.load(model_path, model_type, _verbose=False)
-    self.threshold = threshold
     self.bbox_thickness = bbox_thickness
     self.bbox_color = bbox_color
 
-  def detect(self, img):
+  def detect(self, img, threshold= 0.5):
     results = self.model(img)
     
     result_df = results.pandas().xyxy[0]
-    person_df = result_df[result_df["name"] == "person"]
-    person_df = person_df[person_df["confidence"] >= self.threshold]
+    person_df = result_df[(result_df["name"] == "person") &
+                          (result_df["confidence"] >= threshold)]
+    # person_df = person_df[]
     person_bboxes = person_df.iloc[:, :4].values
 
     for person_bbox in person_bboxes:

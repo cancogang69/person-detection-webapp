@@ -26,3 +26,8 @@ def generate_image_metadata(filename, filetype, store_url):
   image_url = f"{store_url}/{processed_filename}"
 
   return processed_filename, image_url
+
+def get_image_from_url(url):
+  img = cv2.imread(url)
+  _, encoded_img = cv2.imencode('.png', img)
+  return encoded_img
